@@ -144,4 +144,5 @@ def take_input_for_product(products: list[Product]):
                 st.session_state.measurement
             )
             st.write("Produto registrado com sucesso!")
-            st.stop()
+            #st.stop()
+            return product
