@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
 
     if(len(missing_cb_products) > 0):
-        show_message("\nOs produtos cujos códigos de barras não foram encontrados no banco de dados serão mostrados abaixo. Por favor os cadastre.Os produtos permanecerão cadastrados mesmo que você feche a aplicação no meio do processo.\n\n")
+        show_message("\nOs produtos cujos códigos de barras não foram encontrados no banco de dados serão mostrados abaixo. Por favor os cadastre. Os produtos permanecerão cadastrados mesmo que você feche a aplicação no meio do processo.\n\n")
 
     missing_cbs = list({product.cb for product in missing_cb_products})
 

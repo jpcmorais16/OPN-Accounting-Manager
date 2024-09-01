@@ -1,201 +1,148 @@
-from models import Product_db
-from models import Product
+import streamlit as st
+from models import Product_db, Product
 
-
- # keeping everything about input/output here so its easier to create a GUI later (there shouldn't be prints/inputs in many different places of the code)
 def show_message(message):
-    print(message)
+    st.write(message)
 
 def take_product_type():
+    type_options = {
+        "1) Alimento medido por peso (Ex: g, kg)": "Alimentos (peso)",
+        "2) Alimento medido por volume (Ex: L, mL)": "Alimentos (volume)",
+        "3) Item de limpeza medido por peso (Ex: g, kg)": "Limpeza (peso)",
+        "4) Item de limpeza medido por volume (Ex: L, mL)": "Limpeza (volume)",
+        "5) Item de limpeza medido por outra coisa (Ex: un)": "Limpeza (outros)"
+    }
 
-    while(True):
+    type_n = st.selectbox(
+        "Qual é o tipo deste produto? Escolha uma opção:",
+        list(type_options.keys())
+    )
 
-        type_n = input("Qual é o tipo deste produto? Digite o número\n\n\
-    1) Alimento medido por peso (Ex: g, kg)\n\
-    2) Alimento medido por volume (Ex: L, mL)\n\
-    3) Item de limpeza medido por peso (Ex: g, kg)\n\
-    4) Item de limpeza medido por volume (Ex: L, mL)\n\
-    5) Item de limpeza medido por outra coisa (Ex: un)\n\
-    6) Nenhum dos anteriores\n\n")
-
-        try:
-            int(type_n)
-        except:
-            print("Digite um número de 1 a 6")
-            continue
-
-        
-        if(int(type_n) < 1 or int(type_n) > 6):
-            print("Digite um número de 1 a 6")
-            continue
-
-        type = ''
-
-        match(int(type_n)):
-
-            case 1: 
-                type = 'Alimentos (peso)'
-                break
-
-            case 2: 
-                type = 'Alimentos (volume)'
-                break
-            
-            case 3:
-                type = 'Limpeza (peso)'
-                break
-
-            case 4:
-                type = 'Limpeza (volume)'
-                break
-
-            case 5:
-                type = 'Limpeza (outros)'
-                break
-        
-        break
-
-    return type
-
-
+    return type_options[type_n]
 
 def is_volume_product(type):
-
     return type == 'Alimentos (volume)' or type == 'Limpeza (volume)'
 
 def is_weight_product(type):
-
-    return  type == 'Alimentos (peso)' or type == 'Limpeza (peso)'
-
+    return type == 'Alimentos (peso)' or type == 'Limpeza (peso)'
 
 def take_unit(type):
-    unit = ''
+    unit_options = {
+        "Alimentos (peso)": ["kg", "g", "mg"],
+        "Limpeza (peso)": ["kg", "g", "mg"],
+        "Alimentos (volume)": ["L", "mL"],
+        "Limpeza (volume)": ["L", "mL"]
+    }
 
-    while True :
+    unit = st.selectbox(
+        "Insira a unidade na qual é medido este produto:",
+        unit_options.get(type, [])
+    )
 
-        if is_weight_product(type):
-            unit = input("\nInsira a unidade na qual é medida este produto:\n\
-        1) kg\n\
-        2) g\n\
-        3) mg\n")
-            
-
-        if is_volume_product(type):
-            unit = input("\nInsira a unidade na qual é medida este produto:\n\
-        1) L\n\
-        2) mL\n")
-            
-        try:
-            int(unit)
-        except:
-            print("Digite um dos números ou apenas aperte enter")
-            continue
-
-        if is_weight_product(type) and (int(unit) < 1 or int(unit) > 3):
-            print("Digite um dos números ou apenas aperte enter")
-            continue
-
-        if is_volume_product(type) and (int(unit) < 1 or int(unit) > 2):
-            print("Digite um dos números ou apenas aperte enter")
-            continue
-
-        break
-    return int(unit)
+    return unit
 
 def take_measurement():
-    while True:
-
-        measurement = input("Insira a medida (quantos kg, L, g, mL, mg).\n")
-        
-        try:
-            measurement = float(measurement)
-        except:
-            print("Digite um valor numérico")
-            continue
-
-        break
-
+    measurement = st.number_input(
+        "Insira a medida (quantos kg, L, g, mL, mg).",
+        min_value=0.0, format="%.6f"
+    )
     return measurement
 
-
 def take_input_for_product(products: list[Product]):
+    # Initialize session state variables
+    if 'step' not in st.session_state:
+        st.session_state.step = 1
+    if 'product' not in st.session_state:
+        st.session_state.product = Product_db(products[0].cb, products[0].name)
+    if 'name' not in st.session_state:
+        st.session_state.name = ''
+    if 'type' not in st.session_state:
+        st.session_state.type = ''
+    if 'unit' not in st.session_state:
+        st.session_state.unit = ''
+    if 'measurement' not in st.session_state:
+        st.session_state.measurement = 0.0
 
-    while True:
-
+    if st.session_state.step == 1:
         names = [product.name for product in products]
+        st.session_state.product = Product_db(products[0].cb, products[0].name)
 
-        product = Product_db(products[0].cb, products[0].name)
+        if len(names) > 1:
+            st.write(f"O cb {products[0].cb} foi contabilizado com mais de um nome:")
+            actual_name = st.selectbox("Por favor escolha o nome correto", names)
+            st.session_state.product = Product_db(products[0].cb, actual_name)
 
-        if(len(names) > 1):
+        st.write(f"CB: {st.session_state.product.cb}, Item: {st.session_state.product.name}")
+        cancel = st.text_input(
+            "Se por algum motivo não quiser cadastrar este item (cb errado por exemplo), digite 'n'.",
+            placeholder="Digite 'n' para cancelar"
+        )
 
-            print(f"\n O cb {products[0].cb} foi contabilizado com mais de um nome:")
+        if cancel.lower() == 'n':
+            st.stop()
 
-            for name in names:
-                
-                print(name)
-            
-            actual_name = input("\nPor favor digite aqui o nome correto\n")
+        name = st.text_input("O nome está correto? Se sim, deixe em branco.")
+        st.session_state.name = name if name else st.session_state.product.name
 
-            product = Product_db(products[0].cb, actual_name)
+        if st.button("Próximo"):
+            st.session_state.step += 1
 
+    elif st.session_state.step == 2:
+        st.session_state.type = take_product_type()
 
-        print(f"CB: {product.cb}, Item: {product.name}")
+        if st.button("Próximo"):
+            st.session_state.step += 1
 
-        cancel = input("\nSe por algum motivo não quiser cadastrar este item (cb errado por exemplo), digite 'n' e aperte enter. Apenas aperte enter se quiser prosseguir com o cadastro.\n")
+    elif st.session_state.step == 3:
+        if st.session_state.type == 'Limpeza (outros)' or st.session_state.type == '':
+            st.write("Produto registrado com sucesso!")
+            st.stop()
 
-        if cancel == 'N' or cancel == 'n':
-            return None
-        
+        skip = st.text_input(
+            "Se não souber a medida do produto, digite 'p'.",
+            placeholder="Digite 'p' para pular"
+        )
 
+        if skip.lower() == 'p':
+            st.write("Produto registrado com sucesso!")
+            st.stop()
 
-        name = input("\nO nome está correto? Se sim, só aperte enter. Se não, digite o nome correto.\n")
+        if st.button("Próximo"):
+            st.session_state.step += 1
 
-        if name == '':
-            name = product.name
-            
+    elif st.session_state.step == 4:
+        st.session_state.unit = take_unit(st.session_state.type)
 
-        
-        type = take_product_type()
+        if st.button("Próximo"):
+            st.session_state.step += 1
 
-        
-        if type == 'Limpeza (outros)' or type == '':
+    elif st.session_state.step == 5:
+        st.session_state.measurement = take_measurement()
 
-            return Product_db(product.cb, name, type)
-        
+        confirm = st.text_input(
+            f"Tudo certo com o produto: cb: {st.session_state.product.cb}, item: {st.session_state.name}, tipo: {st.session_state.type}, valor da medida: {st.session_state.measurement}? Se não, digite 'n'.",
+            placeholder="Digite 'n' para recomeçar"
+        )
 
-        skip = input("\nAgora vem a parte de inserir as informações sobre a medida deste produto. Se você não souber (talvez quem cadastrou o cb não tenha colocado o peso/volume), digite 'p' e aperte enter. Se tiver tudo certo, apenas aperte enter.\n")
+        if confirm.lower() == 'n':
+            st.session_state.step = 1
 
-        if skip == 'p' or skip == 'P':
+        if st.button("Registrar Produto"):
+            if is_weight_product(st.session_state.type):
+                if st.session_state.unit == "g":
+                    st.session_state.measurement /= 1000
+                elif st.session_state.unit == "mg":
+                    st.session_state.measurement /= 1000000
 
-            restart = input(f"\nTudo certo com o produto: cb: {product.cb}, item: {name}, tipo: {type}? Você pode recomeçar o cadastro dele digitando 'n' e apertando enter\n")
+            if is_volume_product(st.session_state.type) and st.session_state.unit == "mL":
+                st.session_state.measurement /= 1000
 
-            if restart == 'n' or restart == 'N':
-                continue
-
-            return Product_db(product.cb, name, type)
-
-
-        unit = take_unit(type)
-
-        measurement = take_measurement()
-
-        restart = input(f"\nTudo certo com o produto: cb: {product.cb}, item: {name}, tipo: {type}, valor da medida: {measurement}? Você pode recomeçar o cadastro dele digitando 'n' e apertando enter\n")
-
-        if restart == 'n' or restart == 'N':
-            continue
-
-
-        if is_weight_product(type):
-            if unit == 2:
-                measurement = measurement/1000
-
-            if unit == 3:
-                measurement = measurement/1000000
-
-        if is_volume_product(type):
-
-            if unit == 2:
-                measurement = measurement/1000
-
-
-        return Product_db(product.cb, name, type, measurement)
+            product = Product_db(
+                st.session_state.product.cb,
+                st.session_state.name,
+                st.session_state.type,
+                st.session_state.measurement
+            )
+            st.write("Produto registrado com sucesso!")
+            #st.stop()
+            return product
