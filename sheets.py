@@ -107,7 +107,10 @@ def calculate_weighted_cleaning_total_weight(counted_products: list[Product]) ->
 
 
             if(len(aux2) > 0):
-                result += aux2.iloc[0]['kg/embalagem'] * product.amount
+                try:
+                    result += aux2.iloc[0]['kg/embalagem'] * product.amount
+                except:
+                    print("Errro aux2.iloc[0]['kg/embalagem'] * product.amount line 113 sheets.py")
 
     return result
 

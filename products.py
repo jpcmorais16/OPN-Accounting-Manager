@@ -25,7 +25,9 @@ def return_found_and_missing_cb_products(counted_products: list[Product], produc
         try:
             int(counted_product.cb)
         except:
-            show_message(f"Há um cb errado que será desconsiderado. cb: {counted_product.cb}, nome: {counted_product.name}, supermercado: {counted_product.supermarket}, turno: {counted_product.shift}\n")
+            show_message(f"Há um código de barras errado que será desconsiderado.  \n")
+            data = {"Código de Barras": counted_product.cb, "Nome do Produto": counted_product.name, "Supermercado": counted_product.supermarket, "Turno": counted_product.shift}
+            st.table(data)
             continue
 
         if binary_search(products_from_db, counted_product):
