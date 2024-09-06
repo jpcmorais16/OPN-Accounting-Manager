@@ -73,19 +73,21 @@ def take_input_for_product(products: list[Product]):
             st.session_state.product = Product_db(products[0].cb, actual_name)
 
         st.write(f"CB: {st.session_state.product.cb}, Item: {st.session_state.product.name}")
+        st.table({"Item: ": st.session_state.product.name, "Código de Barras: ": st.session_state.product.cb, })
         cancel = st.text_input(
             "Se por algum motivo não quiser cadastrar este item (cb errado por exemplo), digite 'n'.",
             placeholder="Digite 'n' para cancelar"
         )
 
         if cancel.lower() == 'n':
-            st.stop()
+            return None
 
         name = st.text_input("O nome está correto? Se sim, deixe em branco.")
         st.session_state.name = name if name else st.session_state.product.name
 
         if st.button("Próximo"):
             st.session_state.step += 1
+            st.rerun()
 
     elif st.session_state.step == 2:
         st.session_state.type = take_product_type()
