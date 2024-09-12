@@ -87,7 +87,7 @@ def take_input_for_product(products: list[Product]):
 
         if st.button("Próximo"):
             st.session_state.step += 1
-            st.rerun()
+            #st.rerun()
 
     elif st.session_state.step == 2:
         st.session_state.type = take_product_type()
