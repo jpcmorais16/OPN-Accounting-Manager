@@ -58,9 +58,9 @@ def take_input_for_product(products: list[Product]):
         actual_name = st.text_input("Por favor, digite o nome correto:")
         product = Product_db(products[0].cb, actual_name)
 
-    data = {'CB': product.cb, 'Nome do produto': product.name, "Type": product.type, "Measurement": product.measurement}
+    data = {"Missing Number": st.session_state["current_index_missing_cbs"] + 1,'CB': product.cb, 'Nome do produto': product.name, "Type": product.type, "Measurement": product.measurement}
     data = pd.DataFrame(data, index=['Info'])
-    st.write(f"CB: {product.cb}, Item: {product.name}, Type: {product.type}, Measurement: {product.measurement}")
+    #st.write(f"CB: {product.cb}, Item: {product.name}, Type: {product.type}, Measurement: {product.measurement}")
     st.table(data)
 
     name_return = ''
