@@ -14,3 +14,5 @@ To run this project, your first need to:
 2. Then you can run the streamlit application
 
 `streamlit run main.py`
+
+![Fluxo](fluxo.png)

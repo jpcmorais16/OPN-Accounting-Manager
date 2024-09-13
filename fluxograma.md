@@ -1,0 +1,30 @@
+# Fluxo de Cadastro de Produtos
+- Início
+  - 38 códigos de barras contabilizados
+    - Se códigos de barras estão no banco de dados?
+      - Sim: Finalizado
+      - Não: Cadastro do produto
+        - Mostrar código de barras e item
+          - Continuar cadastro?
+            - Sim
+              - Confirmar nome do produto
+                - Nome correto?
+                  - Sim: Prosseguir para o tipo
+                  - Não: Alterar nome
+                - Escolher tipo do produto
+                  - 1: Alimento por peso
+                  - 2: Alimento por volume
+                  - 3: Limpeza por peso
+                  - 4: Limpeza por volume
+                  - 5: Limpeza por unidade
+                  - 6: Outro
+                - Inserir informações sobre medida
+                  - Peso ou volume disponível?
+                    - Sim: Inserir medida (kg, g, L, mL)
+                    - Não: Digitar 'p' para pular
+                - Confirmação final
+                  - Cadastro correto?
+                    - Sim: Finalizado
+                    - Não: Recomeçar cadastro
+            - Não: Cancelar cadastro
+  - Fim
