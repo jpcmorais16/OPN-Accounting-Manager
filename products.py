@@ -1,7 +1,7 @@
 import pandas as pd
 from models import Product, Product_db
 from ui import show_message
-
+import streamlit as st
 
 
 def binary_search(products_from_db: list[Product_db], product: Product) -> bool:
@@ -38,6 +38,9 @@ def return_found_and_missing_cb_products(counted_products: list[Product], produc
 
     if len({product.cb for product in not_found}) > 0:
         show_message(f"\nDos {len({product.cb for product in counted_products})} códigos de barras contabilizados, {len({product.cb for product in not_found})} não estão no banco de dados.\n\n")
+        if "msg_not_found" not in st.session_state:
+            st.session_state["msg_not_found"] = f"\nDos {len({product.cb for product in counted_products})} códigos de barras contabilizados, {len({product.cb for product in not_found})} não estão no banco de dados.\n\n"
+
     
     else:
         show_message("Todos os cbs contabilizados estão no banco de dados!")
