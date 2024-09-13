@@ -297,7 +297,7 @@ def generate_result_sheet(counted_products: list[Product], cb_name_list: list[tu
 
             df.to_excel(writer, sheet_name=supermarket, index=False)
 
-        print(weight_cleaning_sum)
+        print("Weight Cleaning Sum:", weight_cleaning_sum) # This is returning nan for whatever reason
 
         general_results = pd.DataFrame({"Quantidade de produtos": [total_amount],
                                         "Quantidade de códigos de barras": [different_products],

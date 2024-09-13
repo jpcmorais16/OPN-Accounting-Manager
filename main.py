@@ -16,9 +16,6 @@ if __name__ == "__main__":
     if 'ste' not in st.session_state:
         st.session_state.ste = 0
 
-    if st.session_state.ste == -1:
-        st.write("Contabilização acabou. Recarregue a página se precisar conferir")
-
     # Loads the databases
     if st.session_state.ste == 0:
 
@@ -26,12 +23,14 @@ if __name__ == "__main__":
         if 'counted_products' not in st.session_state:
             st.session_state.counted_products = get_counted_products()
 
-        products_from_db = read_cb_database()
+        if 'product_from_db' not in st.session_state:
+            st.session_state.products_from_db = read_cb_database()
 
-        counted_products_found_in_db, missing_cb_products = return_found_and_missing_cb_products(st.session_state.counted_products, products_from_db)
+        first_condition = 'counted_products_found_in_db' not in st.session_state
+        second_condition = 'missing_cb_products' not in st.session_state
 
-        if 'missing_cb_products' not in st.session_state:
-            st.session_state.missing_cb_products = missing_cb_products
+        if first_condition and second_condition:
+            st.session_state.counted_products_found_in_db, st.session_state.missing_cb_products = return_found_and_missing_cb_products(st.session_state.counted_products, st.session_state.products_from_db)
 
         if(len(st.session_state.missing_cb_products) > 0):
             show_message("\nOs produtos cujos códigos de barras não foram encontrados no banco de dados serão mostrados abaixo. Por favor os cadastre.   \nOs produtos permanecerão cadastrados mesmo que você feche a aplicação no meio do processo.\n\n")
@@ -40,6 +39,7 @@ if __name__ == "__main__":
 
         else:
             st.session_state.ste = -1
+            st.rerun()
 
     # There are products that need to be registered or checked
     elif st.session_state.ste == 1:
@@ -47,10 +47,11 @@ if __name__ == "__main__":
         if 'missing_cbs' not in st.session_state:
             st.session_state.missing_cbs = list({product.cb for product in st.session_state.missing_cb_products})
 
+        ## Basically, this current_cb_index variable keeps count of which missing cb I'm registering right now
         if 'current_cb_index' not in st.session_state:
             st.session_state.current_cb_index = 0
 
-
+        ## As long as we haven't finished registering all missings cbs, we keep going
         if st.session_state.current_cb_index < len(st.session_state.missing_cbs):
 
             products_with_cb = [product for product in st.session_state.missing_cb_products]
@@ -59,14 +60,14 @@ if __name__ == "__main__":
 
             if(product_db != None):
                 persist_new_product(product_db)
+            else:
                 st.session_state.current_cb_index += 1
                 #st.rerun()
+        else:
+            st.session_state.ste = -1
 
-        increase_ste()
-        #st.rerun()
 
-
-    elif st.session_state.ste == 2:
+    elif st.session_state.ste == -1:
         
     # for product in counted_products_found_in_db:
 
@@ -77,6 +78,9 @@ if __name__ == "__main__":
 
 
         generate_result_sheet(st.session_state.counted_products, cb_name_list)
+        show_message("  \nPlaniha de resultados gerada!")
 
-        st.session_state.ste = -1
-        st.rerun()
+        show_message("Contabilização acabou. Recarregue a página se precisar conferir")
+
+        st.stop()
+

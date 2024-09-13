@@ -60,6 +60,10 @@ def take_input_for_product(products: list[Product]):
         st.session_state.type = ''
     if 'unit' not in st.session_state:
         st.session_state.unit = ''
+    if 'checkbox_cancel' not in st.session_state:
+        st.session_state.checkbox_cancel = 0
+    if 'checkbox_form_button' not in st.session_state:
+        st.session_state.checkbox_form_button = 0
     if 'measurement' not in st.session_state:
         st.session_state.measurement = 0.0
 
@@ -72,21 +76,32 @@ def take_input_for_product(products: list[Product]):
             actual_name = st.selectbox("Por favor escolha o nome correto", names)
             st.session_state.product = Product_db(products[0].cb, actual_name)
 
-        st.write(f"CB: {st.session_state.product.cb}, Item: {st.session_state.product.name}")
+        #st.write(f"CB: {st.session_state.product.cb}, Item: {st.session_state.product.name}")
         st.table({"Item: ": st.session_state.product.name, "Código de Barras: ": st.session_state.product.cb, })
-        cancel = st.text_input(
-            "Se por algum motivo não quiser cadastrar este item (cb errado por exemplo), digite 'n'.",
-            placeholder="Digite 'n' para cancelar"
-        )
 
-        if cancel.lower() == 'n':
-            return None
+        with st.form("Cancel form"):
+            st.write("Se por algum motivo não quiser cadastrar este item (cb errado por exemplo), marque a checkbox.")
 
-        name = st.text_input("O nome está correto? Se sim, deixe em branco.")
-        st.session_state.name = name if name else st.session_state.product.name
+            checkbox_val = st.checkbox("Cancelar cadastro")
+            st.session_state.checkbox_cancel = checkbox_val
 
-        if st.button("Próximo"):
-            st.session_state.step += 1
+            button_submit = st.form_submit_button("Submit")
+            st.session_state.checkbox_form_button = button_submit
+
+
+        if st.session_state.checkbox_form_button:
+            if st.session_state.checkbox_cancel:
+                print("Aeee cancelou né brother")
+                st.stop()
+            else:
+                print("Aeeee nao cancela brother")
+                st.stop()
+
+        #name = st.text_input("O nome está correto? Se sim, deixe em branco.")
+        #st.session_state.name = name if name else st.session_state.product.name
+
+        #if st.button("Próximo") and (cancel.lower() == 'n'):
+        #st.session_state.step += 1
             #st.rerun()
 
     elif st.session_state.step == 2:
