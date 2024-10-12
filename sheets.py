@@ -139,6 +139,9 @@ def persist_new_product(product: Product_db):
 
     df = pd.DataFrame()
 
+    if product.type == 'Nenhuma das anteriores':
+        product.type = ''
+
     if product.type != '':
         df = pd.read_excel("Banco de dados.xlsx", sheet_name=product.type)
         df.loc[len(df)] = [product.name, product.measurement]
